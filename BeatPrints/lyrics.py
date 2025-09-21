@@ -25,6 +25,45 @@ class Lyrics:
     A class for interacting with the LRClib API to fetch and manage song lyrics.
     """
 
+    def get_manual_lyrics(self) -> str:
+        """
+        Prompts the user to input lyrics line by line manually.
+        
+        Returns:
+            str: The manually entered lyrics as a single string.
+        """
+        print("\nNo lyrics found for this track.")
+        print("Please enter the lyrics line by line.")
+        print("Type 'end' on a new line when you're finished.\n")
+        
+        lyrics_lines = []
+        line_number = 1
+        
+        while True:
+            line = input(f"{line_number:2d}. ")
+            if line.lower().strip() == 'end':
+                break
+            lyrics_lines.append(line)
+            line_number += 1
+        
+        if not lyrics_lines:
+            print("No lyrics entered. Using placeholder text.")
+            return "No lyrics available"
+        
+        lyrics = "\n".join(lyrics_lines)
+        
+        # Display the entered lyrics with line numbers for confirmation
+        print("\nYou entered the following lyrics:")
+        print("-" * 40)
+        for i, line in enumerate(lyrics_lines, 1):
+            if line.strip():
+                print(f"{i:2d}. {line}")
+            else:
+                print(f"{i:2d}. [empty line]")
+        print("-" * 40)
+        
+        return lyrics
+
     def check_instrumental(self, metadata: TrackMetadata) -> bool:
         """
         Determines if a track is instrumental.
@@ -47,15 +86,15 @@ class Lyrics:
     def get_lyrics(self, metadata: TrackMetadata) -> str:
         """
         Retrieves lyrics from LRClib.net for a specified track and artist.
+        If no lyrics are found, prompts the user to input lyrics manually.
 
         Args:
             metadata (TrackMetadata): The metadata of the track.
 
         Returns:
-            str: The lyrics of the track in plain text if available; otherwise, a placeholder message for instrumental tracks.
-
-        Raises:
-            NoLyricsAvailable: If no lyrics are found for the specified track and artist.
+            str: The lyrics of the track in plain text if available from the API,
+                 manually entered lyrics if not found online, or a placeholder 
+                 message for instrumental tracks.
         """
         api = LrcLibAPI(
             user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0"
@@ -65,7 +104,8 @@ class Lyrics:
         )
 
         if not results:
-            raise NoLyricsAvailable
+            # No lyrics found, prompt user for manual input
+            return self.get_manual_lyrics()
 
         if self.check_instrumental(metadata):
             return i.DESC
@@ -73,7 +113,8 @@ class Lyrics:
         lyrics = api.get_lyrics_by_id(results[0].id).plain_lyrics
 
         if not lyrics:
-            raise NoLyricsAvailable
+            # No lyrics content found, prompt user for manual input
+            return self.get_manual_lyrics()
 
         # Display numbered lines for easy selection
         lines = [line for line in lyrics.split("\n")]
@@ -114,17 +155,26 @@ class Lyrics:
 
             # Check if selection matches the "start-end" format
             if not re.match(pattern, selection):
+                print(f"Invalid format. Please use 'start-end' format (e.g., '1-4')")
                 raise InvalidFormatError
 
             selected = [int(num) for num in selection.split("-")]
 
             # Validate the selection range
-            if (
-                len(selected) != 2
-                or selected[0] >= selected[1]
-                or selected[0] <= 0
-                or selected[1] > line_count
-            ):
+            if len(selected) != 2:
+                print(f"Invalid format. Please use 'start-end' format (e.g., '1-4')")
+                raise InvalidFormatError
+            
+            if selected[0] >= selected[1]:
+                print(f"Start line ({selected[0]}) must be less than end line ({selected[1]})")
+                raise InvalidSelectionError
+                
+            if selected[0] <= 0:
+                print(f"Start line must be greater than 0. Available lines: 1-{line_count}")
+                raise InvalidSelectionError
+                
+            if selected[1] > line_count:
+                print(f"End line ({selected[1]}) exceeds available lines. Available lines: 1-{line_count}")
                 raise InvalidSelectionError
 
             # Extract the selected lines and remove empty lines
@@ -133,6 +183,8 @@ class Lyrics:
 
             # Ensure exactly 4 lines are selected
             if len(selected_lines) != 4:
+                print(f"Selected range contains {len(selected_lines)} non-empty lines, but exactly 4 are required.")
+                print(f"Try selecting a different range from the available lines (1-{line_count})")
                 raise LineLimitExceededError
 
             quatrain = "\n".join(selected_lines).strip()
