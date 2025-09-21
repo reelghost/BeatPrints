@@ -75,6 +75,17 @@ class Lyrics:
         if not lyrics:
             raise NoLyricsAvailable
 
+        # Display numbered lines for easy selection
+        lines = [line for line in lyrics.split("\n")]
+        print("\nLyrics with line numbers:")
+        print("-" * 40)
+        for i, line in enumerate(lines, 1):
+            if line.strip():
+                print(f"{i:2d}. {line}")
+            else:
+                print(f"{i:2d}. [empty line]")
+        print("-" * 40)
+
         return lyrics
 
     def select_lines(self, lyrics: str, selection: str) -> str:
@@ -97,15 +108,6 @@ class Lyrics:
         # Split lyrics into lines
         lines = [line for line in lyrics.split("\n")]
         line_count = len(lines)
-        
-        # Print numbered lines for easy selection
-        print("-" * 40)
-        for i, line in enumerate(lines, 1):
-            if line.strip():
-                print(f"{i:2d}. {line}")
-            else:
-                print(f"{i:2d}. [empty line]")
-        print("-" * 40)
 
         try:
             pattern = r"^\d+-\d+$"
