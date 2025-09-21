@@ -97,6 +97,15 @@ class Lyrics:
         # Split lyrics into lines
         lines = [line for line in lyrics.split("\n")]
         line_count = len(lines)
+        
+        # Print numbered lines for easy selection
+        print("-" * 40)
+        for i, line in enumerate(lines, 1):
+            if line.strip():
+                print(f"{i:2d}. {line}")
+            else:
+                print(f"{i:2d}. [empty line]")
+        print("-" * 40)
 
         try:
             pattern = r"^\d+-\d+$"
