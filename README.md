@@ -35,16 +35,16 @@ You can install BeatPrints via:
 
 ```bash
 # For pip users
-pip install BeatPrints
+pip install git+https://github.com/reelghost/BeatPrints.git@main
 
 # For poetry users
-poetry add BeatPrints
+poetry add git+https://github.com/reelghost/BeatPrints.git@main
 ```
 
 Or if you prefer using just the CLI:
 
 ```bash
-pipx install BeatPrints
+pipx install git+https://github.com/reelghost/BeatPrints.git@main
 ```
 
 This will install the CLI, making it ready for you to use.
