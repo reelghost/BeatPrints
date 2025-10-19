@@ -16,7 +16,7 @@ from BeatPrints.utils import filename, organize_tracks
 
 from BeatPrints.errors import ThemeNotFoundError
 from BeatPrints.spotify import TrackMetadata, AlbumMetadata
-from BeatPrints.consts import Size, Position, ThemesSelector
+from BeatPrints.consts import Size, Position, ThemesSelector, FilePath
 
 # Initialize the components
 s = Size()
@@ -77,7 +77,7 @@ class Poster:
         write.text(
             draw,
             p.LABEL,
-            f"{metadata.released}\n{metadata.label}",
+            " \n iha",
             color,
             write.font("Regular"),
             s.LABEL,
@@ -90,6 +90,7 @@ class Poster:
         lyrics: str,
         accent: bool = False,
         theme: ThemesSelector.Options = "Light",
+        # pcover: Optional[str] = os.path.join(FilePath.ASSETS, "ihat.png"), mine
         pcover: Optional[str] = None,
     ) -> None:
         """
@@ -129,15 +130,15 @@ class Poster:
             self._draw_template(draw, metadata, color)
 
             # Add the track's duration and lyrics to the poster
-            write.text(
-                draw,
-                p.DURATION,
-                metadata.duration,
-                color,
-                write.font("Regular"),
-                s.DURATION,
-                anchor="rs",
-            )
+            # write.text(
+            #     draw,
+            #     p.DURATION,
+            #     metadata.duration,
+            #     color,
+            #     write.font("Regular"),
+            #     s.DURATION,
+            #     anchor="rs",
+            # )
             write.text(
                 draw,
                 p.LYRICS,
