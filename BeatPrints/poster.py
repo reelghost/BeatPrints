@@ -151,11 +151,14 @@ class Poster:
 
             # Save the generated poster with a unique filename
             name = filename(metadata.name, metadata.artist)
-            poster.save(os.path.join(self.save_to, name))
+            output_path = os.path.join(self.save_to, name)
+            poster.save(output_path)
 
             print(
-                f"✨ Poster for {metadata.name} by {metadata.artist} saved to {self.save_to}"
+                f"✨ Poster for {metadata.name} by {metadata.artist} saved to {output_path}"
             )
+            
+            return output_path
 
     def album(
         self,
